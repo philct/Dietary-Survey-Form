@@ -1,3 +1,6 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -45,6 +48,19 @@ public class CustomJFrame extends JFrame
 	private JButton submitButton;
 	private FileHandler fileHandler;
 	
-	
+	class InnerActionListener implements ActionListener 
+	{
+		@Override
+		public void actionPerformed(ActionEvent e) 
+		{
+			
+		} // End of Method
+		
+		private void clearForm() 
+		{
+			
+		} // End of Method
+		
+	} // End of Action Listener method
 	
 } // End of class
