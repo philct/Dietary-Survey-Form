@@ -1,9 +1,11 @@
+import java.io.IOException;
+
 import javax.swing.JFrame;
 
 public class Project4 
 {
 
-	public static void main(String[] args) 
+	public static void main(String[] args) throws IOException 
 	{
 		JFrame DietarySurveyJFrame = new CustomJFrame();
 		DietarySurveyJFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

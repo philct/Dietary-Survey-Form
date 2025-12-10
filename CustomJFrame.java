@@ -5,8 +5,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
+import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.text.NumberFormat;
 
 import javax.swing.ButtonGroup;
@@ -59,7 +61,7 @@ public class CustomJFrame extends JFrame
 	private JButton submitButton;
 	private FileHandler fileHandler;
 	
-	public CustomJFrame () 
+	public CustomJFrame () throws IOException 
 	{
 		setTitle("Dietary Survey");
 		JPanel mainPanel = new JPanel();
@@ -226,7 +228,7 @@ public class CustomJFrame extends JFrame
 		formatter.setAllowsInvalid(false);
 		formatter.setMinimum(0);
 		formatter.setMaximum(999);
-		weightFormattedTextField = new JFormattedTextField();
+		weightFormattedTextField = new JFormattedTextField(formatter);
 		mainPanel.add(weightFormattedTextField, gbc);
 		
 		gbc.gridx = 0;
@@ -244,9 +246,11 @@ public class CustomJFrame extends JFrame
 		submitButton.setBackground(Color.green);
 		mainPanel.add(submitButton, gbc);
 		
-		//************************************************************************
-		// Initialize File Handler Here
-		//************************************************************************
+		fileHandler = new FileHandler();
+		
+		InnerActionListener listener = new InnerActionListener();
+		submitButton.addActionListener(listener);
+		clearButton.addActionListener(listener);
 		
 		add(mainPanel, BorderLayout.NORTH);
 	} // End of Constructor
@@ -254,13 +258,73 @@ public class CustomJFrame extends JFrame
 	class InnerActionListener implements ActionListener 
 	{
 		@Override
-		public void actionPerformed(ActionEvent e) 
+		public void actionPerformed(ActionEvent e)
 		{
+			Object source = e.getSource();
+			String fileData = "";
+			
+			// Write text field data to the fileData string
+			if ( source == submitButton ) 
+			{
+				fileData += "," + firstNameTextField.getText() + "," + lastNameTextField.getText() + "," + phoneNumberTextField.getText()
+							+ "," + emailTextField.getText();
+				
+				// Get the value for radio button
+				String sex = "";
+				if ( maleRadioButton.isSelected() ) 
+				{
+					sex = "Male";
+				}
+				else if ( femaleRadioButton.isSelected() ) 
+				{
+					sex = "Female";
+				}
+				else if ( preferRadioButton.isSelected() ) 
+				{
+					sex = "Prefer not to say";
+				} // End of condition
+				
+				// Add sex to file data
+				fileData += "," + sex;
+				
+				// Add JSpinner and Slider value to file Data
+				fileData += "," + waterIntakeSpinner.getValue() + "," + mealSlider.getValue();
+				
+				// Add meal check box to file Data
+				fileData += "," + wheatCheckBox.isSelected() + "," + sugarCheckBox.isSelected() + "," + dairyCheckBox.isSelected(); 
+				
+				// Add walk combo box to file Data
+				fileData += "," + (String)walkComboBox.getSelectedItem();
+				
+				// Add formatted text field to file data
+				fileData += "," + weightFormattedTextField.getText();
+				clearForm();
+			}
+			else if ( source == clearButton ) 
+			{
+				clearForm();
+			}// End of Condition
+			
+			try {
+				fileHandler.writeResults(fileData);
+			} catch (IOException e1) { } // End of catch
 			
 		} // End of Method
 		
 		private void clearForm() 
 		{
+			firstNameTextField.setText("");
+			lastNameTextField.setText("");
+			phoneNumberTextField.setText("");
+			emailTextField.setText("");
+			radioButtonGroup.clearSelection();
+			waterIntakeSpinner.setValue(15);
+			mealSlider.setValue(3);
+			dairyCheckBox.setSelected(false);
+			wheatCheckBox.setSelected(false);
+			sugarCheckBox.setSelected(false);
+			walkComboBox.setSelectedIndex(0);
+			weightFormattedTextField.setValue(null);
 			
 		} // End of Method
 		
