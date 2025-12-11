@@ -5,12 +5,9 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Insets;
-import java.awt.TextField;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.text.NumberFormat;
-
 import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -26,6 +23,14 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.NumberFormatter;
 
+/**
+ * 
+ * The Program Creates a Custom JFrame for the Dietary Survey.
+ * It takes in the values entered by the user and store them
+ * inside the survey_results.csv file.
+ * 
+ * @author Philimon Tegegn
+ */
 public class CustomJFrame extends JFrame
 {
 	// Declaring Instance variables
@@ -61,6 +66,14 @@ public class CustomJFrame extends JFrame
 	private JButton submitButton;
 	private FileHandler fileHandler;
 	
+	/**
+	 * 
+	 * The Constructor initializes all the instance variables
+	 * of the object. It also assigns the correct position for each
+	 * instance values.
+	 * 
+	 * @throws IOException - Throws exception if there is a problem writing the file
+	 */
 	public CustomJFrame () throws IOException 
 	{
 		setTitle("Dietary Survey");
@@ -138,8 +151,8 @@ public class CustomJFrame extends JFrame
 		
 		gbc.gridx = 0;
 		gbc.gridy = 6;
-		gbc.gridwidth = 2;
-		gbc.fill = MAXIMIZED_HORIZ;
+		gbc.gridwidth = 1;
+		gbc.fill = GridBagConstraints.HORIZONTAL;
 		dietaryLabel= new JLabel("Dietary Questions");
 		mainPanel.add(dietaryLabel, gbc);
 		
@@ -181,17 +194,17 @@ public class CustomJFrame extends JFrame
 		checkBoxLabel = new JLabel("Do any of these meals regularly contain:");
 		mainPanel.add(checkBoxLabel, gbc);
 		
-		JPanel checkBoxLabel = new JPanel();
+		JPanel checkBoxPanel = new JPanel();
 		dairyCheckBox = new JCheckBox("Dairy");
 		wheatCheckBox = new JCheckBox("Wheat");
 		sugarCheckBox = new JCheckBox("Sugar");
-		checkBoxLabel.add(dairyCheckBox);
-		checkBoxLabel.add(wheatCheckBox);
-		checkBoxLabel.add(sugarCheckBox);
+		checkBoxPanel.add(dairyCheckBox);
+		checkBoxPanel.add(wheatCheckBox);
+		checkBoxPanel.add(sugarCheckBox);
 		gbc.gridx = 0;
 		gbc.gridy = 12;
 		gbc.insets = new Insets(5, 5, 5, 5);
-		mainPanel.add(checkBoxLabel, gbc);
+		mainPanel.add(checkBoxPanel, gbc);
 		
 		gbc.gridx = 0;
 		gbc.gridy = 13;
@@ -222,13 +235,13 @@ public class CustomJFrame extends JFrame
 		gbc.gridx = 0;
 		gbc.gridy = 16;
 		gbc.insets = new Insets(5, 50, 5, 50);
-		NumberFormat format = NumberFormat.getIntegerInstance();
-		NumberFormatter formatter = new NumberFormatter(format);
-		formatter.setValueClass(Integer.class); // Only Integers
-		formatter.setAllowsInvalid(false);
-		formatter.setMinimum(0);
-		formatter.setMaximum(999);
-		weightFormattedTextField = new JFormattedTextField(formatter);
+		NumberFormatter formatter = new NumberFormatter();
+        formatter.setValueClass(Integer.class);
+        formatter.setAllowsInvalid(false);
+        formatter.setMinimum(0);
+        formatter.setMaximum(999);
+        weightFormattedTextField = new JFormattedTextField(formatter);
+        weightFormattedTextField.setColumns(5);
 		mainPanel.add(weightFormattedTextField, gbc);
 		
 		gbc.gridx = 0;
@@ -246,7 +259,7 @@ public class CustomJFrame extends JFrame
 		submitButton.setBackground(Color.green);
 		mainPanel.add(submitButton, gbc);
 		
-		fileHandler = new FileHandler();
+		fileHandler = new FileHandler(); // Initialize the file handler
 		
 		InnerActionListener listener = new InnerActionListener();
 		submitButton.addActionListener(listener);
@@ -255,8 +268,21 @@ public class CustomJFrame extends JFrame
 		add(mainPanel, BorderLayout.NORTH);
 	} // End of Constructor
 	
+	/**
+	 * 
+	 * The Class Creates an action listener for the custom JFrame. It will take in
+	 * all the data then stores them to the file when submit button is clicked. It 
+	 * also clears the form when clear button is clicked.
+	 * 
+	 * @author Philimon Tegegn
+	 */
 	class InnerActionListener implements ActionListener 
 	{
+		/**
+		 * The method get the survey data stores them to the file
+		 * when submit is pressed and clears the survey form when
+		 * clear button is pressed.
+		 */
 		@Override
 		public void actionPerformed(ActionEvent e)
 		{
@@ -297,7 +323,15 @@ public class CustomJFrame extends JFrame
 				fileData += "," + (String)walkComboBox.getSelectedItem();
 				
 				// Add formatted text field to file data
-				fileData += "," + weightFormattedTextField.getText();
+				fileData += "," + (Integer)weightFormattedTextField.getValue();
+				
+				// Write the file data into the file
+				try 
+				{
+					fileHandler.writeResults(fileData);
+				}
+				catch (IOException e1) { } // End of catch
+				
 				clearForm();
 			}
 			else if ( source == clearButton ) 
@@ -305,12 +339,12 @@ public class CustomJFrame extends JFrame
 				clearForm();
 			}// End of Condition
 			
-			try {
-				fileHandler.writeResults(fileData);
-			} catch (IOException e1) { } // End of catch
-			
 		} // End of Method
 		
+		/**
+		 * The method clear the survey form and set some of the values to their
+		 * default values.
+		 */
 		private void clearForm() 
 		{
 			firstNameTextField.setText("");
